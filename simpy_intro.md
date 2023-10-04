@@ -49,4 +49,41 @@ def car(env, name, bcs, driving_time, charge_duration):
 
 リソースを解放すると、次の待機プロセスが再開され、リソースのスロットの 1 つを「所有」します。基本的なリソースは、待機中のプロセスを FIFO (先入れ先出し) 方式で並べ替えます。
 
-リソースには、作成時に環境への参照と容量が必要です。
+リソースには、作成時に`Environment`への参照と容量が必要です。
+
+```python
+import simpy
+env = simpy.Environment()
+bcs = simpy.Resource(env, capacity=2)
+```
+
+これで、`car` のプロセスを作成し、リソースへの参照といくつかの追加パラメータを渡すことができます。
+
+```python
+for i in range(4):
+    env.process(car(env, 'Car %d' % i, bcs, i*2, 5))
+<Process(car) object at 0x...>
+<Process(car) object at 0x...>
+<Process(car) object at 0x...>
+<Process(car) object at 0x...>
+```
+
+最後に、シミュレーションを開始できます。このシミュレーションでは自動車のプロセスはすべて自動的に終了するため、終了時間を指定する必要はありません。イベントがなくなるとシミュレーションは自動的に停止します。
+
+```
+env.run()
+Car 0 arriving at 0
+Car 0 starting to charge at 0
+Car 1 arriving at 2
+Car 1 starting to charge at 2
+Car 2 arriving at 4
+Car 0 leaving the bcs at 5
+Car 2 starting to charge at 5
+Car 3 arriving at 6
+Car 1 leaving the bcs at 7
+Car 3 starting to charge at 7
+Car 2 leaving the bcs at 10
+Car 3 leaving the bcs at 12
+```
+
+最初の 2 台の車両は BCS に到着するとすぐに充電を開始できますが、2 台目と 3 台目の車両は待つ必要があることに注意してください。

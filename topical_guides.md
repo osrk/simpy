@@ -68,3 +68,82 @@ p = env.process(example(env))
 env.run()
 now=1, value=42
 ```
+
+## Shared Resources
+- Shared resource は、プロセス相互作用をモデル化するもう 1 つの方法です。
+- これらは、プロセスがそれらを使用するためにキューに並ぶ輻輳ポイントを形成します。
+- SimPy では、リソースの 3 つのカテゴリが定義されています。
+  - Resouce – 限られた数のプロセスで一度に使用できるリソース (例: 限られた数の燃料ポンプを備えたガソリン スタンド)。
+  - Container – 均質で未分化なバルクの生産と消費をモデル化するリソース。それは連続的 (水のように) または離散的 (リンゴのように) のいずれかです。
+  - Store – Python オブジェクトの生成と消費を可能にするリソース。
+
+### 資源の基本概念
+
+すべてのリソースは同じ基本概念を共有しています。つまり、リソース自体は、通常は制限された容量を持つある種のコンテナです。プロセスは、リソースに何かを入れたり、何かを取り出したりしようとします。リソースがいっぱいまたは空の場合、キューに並んで待つ必要があります。
+
+各リソースは大まかに次のようになります。
+
+```
+BaseResource(容量):
+    put_queue
+    get_queue
+
+    put(): event
+    get(): event
+```
+
+すべてのリソースには最大容量と 2 つのキューがあります。1 つはリソースに何かを入れたいプロセス用で、もう 1 つは何かを取り出したいプロセス用です。 put() メソッドと get() メソッドはどちらも、対応するアクションが成功したときにトリガーされるイベントを返します。
+
+#### リソースと割り込み
+
+プロセスが put イベントまたは get イベントの成功を待っている間、別のプロセスによって中断される可能性があります。割り込みをキャッチした後、プロセスには 2 つの可能性があります。
+
+1. (再度イベントを発行することにより) リクエストを待ち続ける可能性があります。
+2. リクエストの待機を停止する場合があります。この場合、イベントの cancel() メソッドを呼び出す必要があります。
+これは忘れがちなので、すべてのリソース イベントは context manager です (詳細については、Python ドキュメントを参照してください)。
+
+リソース システムはモジュール式で拡張可能です。たとえば、リソースは特殊なキューやイベント タイプを使用できます。これにより、ソートされたキューを使用したり、イベントに優先順位を追加したり、プリエンプションを提供したりすることができます。
+
+### Resrouces
+### contaners
+### Stores
+
+- Store を使用すると、(コンテナーに保存されるかなり抽象的な「量」とは対照的に) 具体的なオブジェクトの生産と消費をモデル化できます。 
+- 1 つのストアに複数のタイプのオブジェクトを含めることもできます。
+- Store のほかに、カスタム関数を使用してストアから取得するオブジェクトをフィルタリングできる FilterStore と、アイテムが優先順位でストアから取得される PriorityStore があります。
+
+以下は、一般的なプロデューサー/コンシューマー シナリオをモデル化した簡単な例です。
+
+```python
+def producer(env, store):
+    for i in range(100):
+        yield env.timeout(2)
+        yield store.put(f'spam {i}')
+        print(f'Produced spam at', env.now)
+
+def consumer(name, env, store):
+    while True:
+        yield env.timeout(1)
+        print(name, 'requesting spam at', env.now)
+        item = yield store.get()
+        print(name, 'got', item, 'at', env.now)
+
+env = simpy.Environment()
+store = simpy.Store(env, capacity=2)
+
+prod = env.process(producer(env, store))
+consumers = [env.process(consumer(i, env, store)) for i in range(2)]
+
+env.run(until=5)
+0 requesting spam at 1
+1 requesting spam at 1
+Produced spam at 2
+0 got spam 0 at 2
+0 requesting spam at 3
+Produced spam at 4
+1 got spam 1 at 4
+```
+
+他のリソース タイプと同様に、容量属性を介してストアの容量を取得できます。属性 items は、ストアで現在入手可能なアイテムのリストを指します。 put キューと get キューには、put_queue 属性と get_queue 属性を介してアクセスできます。
+
+(FilterStore, PriorityStore はまだ読んでない)

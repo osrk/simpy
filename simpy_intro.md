@@ -1,11 +1,11 @@
 
 ## Install
-
 ```
 pip install simpy
 ```
 ```
-$ pip install simpyDefaulting to user installation because normal site-packages is not writeable
+$ pip install simpy
+Defaulting to user installation because normal site-packages is not writeable
 Collecting simpy
   Downloading simpy-4.0.2-py2.py3-none-any.whl (30 kB)
 Installing collected packages: simpy

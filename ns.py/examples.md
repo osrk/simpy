@@ -11,8 +11,8 @@ PacketGenarator:pg2 -->|wire2| PacketSink:ps
 ```
 
 ## tcp.py
- ```mermaid
- flowchart
+```mermaid
+flowchart
 
 sender[TCPPacketGeneraotr:sender]
 switch[SimplePacketSwitch:switch]

@@ -1,4 +1,8 @@
+
 # ns.py: Pythonic 離散事象ネットワークシミュレータ
+
+https://github.com/TL-System/ns.py
+
 この離散イベントネットワークシミュレータは、Python用の汎用離散イベントシミュレーションフレームワークであるsimpyに基づいています。 ns.py は、柔軟で再利用できるように設計されており、パケットジェネレータ、ネットワークリンク、スイッチ要素、スケジューラ、トラフィックシェーパー、トラフィックモニター、デマルチプレクシング要素など、複数のネットワークコンポーネントを簡単に接続するために使用できます。
 
 ## インストール
@@ -52,7 +56,7 @@ $ python upgrade_packages.py
 - REDPort:早期ランダム検出(RED)メカニズムを使用してパケットをドロップする、特定のレートとバッファサイズ(バイト単位またはパケット数)を持つスイッチの出力ポート。
 
 ### Wire
-- Wire: 特定の分布に続く伝搬遅延を持つネットワークワイヤ(ケーブル)。ワイヤの帯域幅は、アップストリーム サーバまたはスケジューリング サーバでモデル化できるため、モデル化する必要はありません。Port
+- Wire: 特定の分布に続く伝搬遅延を持つネットワークワイヤ(ケーブル)。ワイヤの帯域幅は、アップストリーム Port、サーバまたはスケジューリング サーバでモデル化できるため、モデル化する必要はありません。
 
 ### Splitter
 - Splitter: 元のパケットをポート 1 から送信し、パケットのコピーをポート 2 から送信するだけのスプリッタ。
@@ -60,14 +64,14 @@ $ python upgrade_packages.py
 - NWaySplitter: パケットのコピーを n 個のダウンストリーム要素に送信する n 方向スプリッタ。
 
 ### Marker
-- TrTCM: パケットを緑、黄、または赤としてマークする 2698 レート <> カラー マーカー (詳細については、RFC <> を参照してください)。
+- TrTCM: パケットを緑、黄、または赤としてマークする 2 レート 3 カラー マーカー (詳細については、RFC 2698 を参照)。
 
 ### Demultiplexing
-- RandomDemux: 出力ポートをランダムに選択する逆多重化要素。
+- RandomDemux: 出力ポートをランダムに選択するデマルチプレキシング要素。
 
-- FlowDemux: パケット ストリームをフロー ID で分割する逆多重化要素。
+- FlowDemux: パケット ストリームをフロー ID で分割するデマルチプレキシング要素。
 
-- FIBDemux: フロー情報ベース(FIB)を使用してフロー ID に基づいてパケット転送を決定する逆多重化要素。
+- FIBDemux: フロー情報ベース(FIB)を使用してフロー ID に基づいてパケット転送を決定するデマルチプレキシング要素。
 
 ### Shaper
 - TokenBucketShaper: トークンバケットシェイパー。
@@ -79,15 +83,15 @@ $ python upgrade_packages.py
 
 - WFQServer: 重み付け均等化キューイング (WFQ) スケジューラ。
 
-- DRRServer: 赤字ラウンドロビン (DRR) スケジューラ。
+- DRRServer: デフィシットラウンドロビン (DRR) スケジューラ。
 
 - VirtualClockServer: 仮想クロックスケジューラ。
 
 ### Switch
 
-SimplePacketSwitch: 各発信ポートに FIFO 制限バッファを持つパケットスイッチ。
+- SimplePacketSwitch: 各送信ポートに FIFO 制限バッファを持つパケットスイッチ。
 
-- FairPacketSwitch:WFQ、DRR、スタティックプライオリティ、または仮想クロックスケジューラ、および各発信ポート上の有界バッファを選択できる公平なパケットスイッチ。また、単純なハッシュ関数を使用して (flow_id、node_id、および port_id) のタプルをクラス ID にマップし、このパラメーターを使用してflow_basedスケジューリングではなくクラスベースのスケジューリングをアクティブにする方法の例も示します。flow_classes
+- FairPacketSwitch:WFQ、DRR、スタティックプライオリティ、または仮想クロックスケジューラ、および各発信ポート上の有界バッファを選択できる公平なパケットスイッチ。また、単純なハッシュ関数を使用して (flow_id、node_id、および port_id) のタプルをクラス ID にマップし、このパラメーターを使用してflow_basedスケジューリングではなくクラスベースのスケジューリングをアクティブにする方法の例も示します。
 
 ### Monitor
 
@@ -111,23 +115,23 @@ SimplePacketSwitch: 各発信ポートに FIFO 制限バッファを持つパケ
 
 - tcp.py: この例は、単純なパケット転送スイッチを介して送信者から受信者への 2 ホップの単純なネットワークを設定する方法と、同じスイッチを介して受信側から送信者に確認応答パケットを送信する方法を示しています。送信側はトランスポート プロトコルとして TCP を使用し、輻輳制御アルゴリズムは構成可能です (TCP Reno や TCP CUBIC など)。TCPPacketGenerator、CongestionControl、TCPSink、WireおよびSimplePacketSwitch を示します。
 
-- token_bucket.py: この例では、バケットサイズがパケットサイズと同じで、バケットレートが入力パケットレートの半分であるトラフィックシェーパーを作成します。、、および を示します。DistPacketGeneratorPacketSinkTokenBucketShaper
+- token_bucket.py: この例では、バケットサイズがパケットサイズと同じで、バケットレートが入力パケットレートの半分であるトラフィックシェーパーを作成します。DistPacketGenerator、PacketSink、および TokenBucketShaperを示します。
 
-- two_rate_token_bucket.py: この例では、2 レートの 3 色のトラフィック シェーパーを作成します。、、および を示します。DistPacketGeneratorPacketSinkTwoRateTokenBucketShaper
+- two_rate_token_bucket.py: この例では、2 レートの 3 色のトラフィック シェーパーを作成します。DistPacketGenerator、PacketSink、および TwoRateTokenBucketShaperを示します。
 
-- static_priority.py: この例では、2 つの静的優先度 (SP) スケジューラを使用して、より複雑な 2 層スケジューラを構築し、アップストリーム スケジューラとダウンストリーム スケジューラをオンにする方法を示します。、、および を示します。zero_downstream_bufferzero_bufferDistPacketGeneratorPacketSinkSPServer
+- static_priority.py: この例では、2 つの静的優先度 (SP) スケジューラを使用して、より複雑な 2 層スケジューラを構築し、アップストリーム スケジューラとダウンストリーム スケジューラをオンにする方法を示します。zero_downstream_buffer、zero_buffer、DistPacketGeneratorおよび PacketSinkSPServerを示します。
 
-- wfq.py: この例では、重み付け均等化キューイング (WFQ) スケジューラを使用する方法と、サーバー モニターを使用して、サンプリング分布を使用してより細かい粒度でパフォーマンス統計を記録する方法を示します。、、、、および を示します。DistPacketGeneratorPacketSinkSplitterWFQServerServerMonitor
+- wfq.py: この例では、重み付け均等化キューイング (WFQ) スケジューラを使用する方法と、サーバー モニターを使用して、サンプリング分布を使用してより細かい粒度でパフォーマンス統計を記録する方法を示します。DistPacketGenerator、PacketSink、Splitter、WFQServerServer、およびMonitorを示します。
 
-- virtual_clock.py: この例では、Virtual Clock スケジューラを使用する方法と、サーバー モニターを使用して、サンプリング分布を使用してパフォーマンス統計をより細かい粒度で記録する方法を示します。、、、、および を示します。DistPacketGeneratorPacketSinkSplitterVirtualClockQServerServerMonitor
+- virtual_clock.py: この例では、Virtual Clock スケジューラを使用する方法と、サーバー モニターを使用して、サンプリング分布を使用してパフォーマンス統計をより細かい粒度で記録する方法を示します。DistPacketGenerator、PacketSink、Splitter、VirtualClock、QServerServerおよびMonitor を示します。
 
-- drr.py: この例では、赤字ラウンドロビン (DRR) スケジューラの使用方法を示します。、、および を示します。DistPacketGeneratorPacketSinkSplitterDRRServer
+- drr.py: この例では、デフィシットラウンドロビン (DRR) スケジューラの使用方法を示します。DistPacketGenerator、PacketSink、Splitterおよび DRRServerを示します。
 
-- two_level_drr.py, , : これらの例では、赤字ラウンドロビン(DRR)、重み付け均等化キューイング(WFQ)、およびスタティックプライオリティ(SP)サーバで構成される2レベルのトポロジを構築する方法を示しています。また、フロー ID に文字列を使用する方法、およびディクショナリを使用してフローごとの重みを DRR、WFQ、または SP サーバに提供する方法も示し、グループ ID とグループごとのフロー ID を使用してグローバルに一意のフロー ID を簡単に作成できるようにする方法も示します。two_level_wfq.pytwo_level_sp.py
+- two_level_drr.py,two_level_wfq.py , two_level_sp.py: これらの例では、赤字ラウンドロビン(DRR)、重み付け均等化キューイング(WFQ)、およびスタティックプライオリティ(SP)サーバで構成される2レベルのトポロジを構築する方法を示しています。また、フロー ID に文字列を使用する方法、およびディクショナリを使用してフローごとの重みを DRR、WFQ、または SP サーバに提供する方法も示し、グループ ID とグループごとのフロー ID を使用してグローバルに一意のフロー ID を簡単に作成できるようにする方法も示します。
 
-- red_wfq.py: この例では、ランダム早期検出 (RED) バッファー (またはテール ドロップ バッファー) と WFQ サーバーを組み合わせる方法を示します。RED またはテールドロップバッファはアップストリーム入力バッファとして機能し、ダウンストリーム要素がゼロバッファ構成であることを認識するように構成されます。WFQ サーバーは、RED またはテールドロップバッファの後のダウンストリーム要素としてゼロバッファリングで初期化されます。ダウンストリーム WFQ サーバーがボトルネックになっている場合、パケットはドロップされます。、、、、および、基本エレメントを使用してより複雑なネットワーク エレメントを構築する方法と、その方法を紹介します。DistPacketGeneratorPacketSinkPortREDPortWFQServerSplitterzero_bufferzero_downstream_buffer
+- red_wfq.py: この例では、ランダム早期検出 (RED) バッファー (またはテール ドロップ バッファー) と WFQ サーバーを組み合わせる方法を示します。RED またはテールドロップバッファはアップストリーム入力バッファとして機能し、ダウンストリーム要素がゼロバッファ構成であることを認識するように構成されます。WFQ サーバーは、RED またはテールドロップバッファの後のダウンストリーム要素としてゼロバッファリングで初期化されます。ダウンストリーム WFQ サーバーがボトルネックになっている場合、パケットはドロップされます。DistPacketGenerator、PacketSink、Port、REDPort、WFQServerおよび、Splitter基本エレメントを使用してより複雑なネットワーク エレメントを構築する方法と、その方法を紹介します。zero_bufferzero_downstream_buffer
 
-- fattree.py: ネットワーク フロー シミュレーションに FatTree トポロジを構築して使用する方法を示す例。、および を示します。フローごとの公平性が必要な場合は、重み付け均等化キューイング、赤字ラウンドロビン、または仮想クロックとともに、スイッチの各発信ポートのスケジューリング規範として使用されます。DistPacketGeneratorPacketSinkSimplePacketSwitchFairPacketSwitchFairPacketSwitch
+- fattree.py: ネットワーク フロー シミュレーションに FatTree トポロジを構築して使用する方法を示す例。DistPacketGenerator、PacketSink、SimplePacketSwitchおよびFairPacketSwitch を示します。フローごとの公平性が必要な場合は、FairPacketSwitch を用い、重み付け均等化キューイング、赤字ラウンドロビン、または仮想クロックとともに、スイッチの各発信ポートのスケジューリング規範として使用されます。
 
 ## エミュレーションモード
 ns-3 シミュレーターのエミュ

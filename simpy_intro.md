@@ -1,3 +1,7 @@
+# SimPy 入門
+
+注意
+本文書は主に [SimPy in 10 Minutes](https://simpy.readthedocs.io/en/latest/simpy_intro/index.html) の翻訳で構成されている。したがって、不特定多数への公開は許可されていない。
 
 ## Install
 ```
